@@ -72,34 +72,32 @@ const impact = [
 
 export default function MissionPage() {
   return (
-    <div className="container mx-auto px-4 py-20 max-w-5xl">
+    <div className="container mx-auto px-4 lg:px-6 py-20 max-w-4xl">
       {/* Header */}
       <AnimatedSection>
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-semibold tracking-tight font-display md:text-5xl">
+        <div className="text-center mb-14">
+          <h1 className="text-4xl font-bold tracking-tight font-display md:text-5xl">
             Mission &{" "}
-            <span className="bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] bg-clip-text text-transparent">
-              Vision
-            </span>
+            <span className="gradient-text">Vision</span>
           </h1>
-          <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground mt-5 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
             Our goal is to make American Sign Language accessible and engaging
             for everyone through modern educational technology.
           </p>
         </div>
       </AnimatedSection>
 
-      <Separator className="my-8" />
+      <Separator className="my-10 opacity-50" />
 
       {/* Mission Statement */}
       <AnimatedSection>
         <section className="mb-16">
-          <Card className="rounded-3xl border border-border/60 glass-panel">
+          <Card className="rounded-2xl border border-border/50 glass-panel">
             <CardContent className="flex flex-col items-center text-center gap-4 py-10">
-              <div className="size-14 rounded-2xl bg-[color:var(--brand-1)]/15 flex items-center justify-center">
-                <Heart className="size-7 text-[color:var(--brand-1)]" />
+              <div className="size-14 rounded-2xl bg-(--brand-1)/15 flex items-center justify-center">
+                <Heart className="size-7 text-(--brand-1)" />
               </div>
-              <h2 className="text-2xl font-semibold font-display">Our Mission</h2>
+              <h2 className="text-xl font-bold font-display sm:text-2xl">Our Mission</h2>
               <p className="text-muted-foreground max-w-2xl leading-relaxed">
                 To democratize sign language education by providing a free,
                 interactive, and technology-driven platform that empowers
@@ -115,18 +113,18 @@ export default function MissionPage() {
       {/* Project Goals */}
       <section className="mb-16">
         <AnimatedSection>
-          <h2 className="text-2xl font-semibold mb-6 text-center font-display">Project Goals</h2>
+          <h2 className="text-xl font-bold mb-6 text-center font-display sm:text-2xl">Project Goals</h2>
         </AnimatedSection>
         <StaggerContainer>
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             {goals.map((goal) => (
               <StaggerItem key={goal.title}>
-                <Card className="h-full rounded-3xl border border-border/60 bg-card/80 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-                  <CardHeader>
-                    <div className="size-10 rounded-lg bg-[color:var(--brand-1)]/10 flex items-center justify-center mb-1">
-                      <goal.icon className="size-5 text-[color:var(--brand-1)]" />
+                <Card className="h-full rounded-2xl border border-border/50 bg-card/80 card-elevated">
+                  <CardHeader className="space-y-3">
+                    <div className="size-9 rounded-lg bg-(--brand-1)/10 flex items-center justify-center">
+                      <goal.icon className="size-4 text-(--brand-1)" />
                     </div>
-                    <CardTitle className="text-lg">{goal.title}</CardTitle>
+                    <CardTitle className="text-[15px]">{goal.title}</CardTitle>
                     <CardDescription>{goal.description}</CardDescription>
                   </CardHeader>
                 </Card>
@@ -139,15 +137,15 @@ export default function MissionPage() {
       {/* Learning Objectives */}
       <AnimatedSection>
         <section className="mb-16">
-          <h2 className="text-2xl font-semibold mb-6 text-center font-display">
+          <h2 className="text-xl font-bold mb-6 text-center font-display sm:text-2xl">
             Learning Objectives
           </h2>
-          <Card className="rounded-3xl border border-border/60 bg-card/80">
+          <Card className="rounded-2xl border border-border/50 bg-card/80">
             <CardContent className="pt-6">
               <ul className="space-y-4">
                 {objectives.map((objective, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <Star className="size-4 text-[color:var(--brand-1)] mt-0.5 shrink-0" />
+                    <Star className="size-4 text-(--brand-1) mt-0.5 shrink-0" />
                     <span className="text-muted-foreground text-sm">
                       {objective}
                     </span>
@@ -162,20 +160,20 @@ export default function MissionPage() {
       {/* Educational Impact */}
       <section>
         <AnimatedSection>
-          <h2 className="text-2xl font-semibold mb-6 text-center font-display">
+          <h2 className="text-xl font-bold mb-6 text-center font-display sm:text-2xl">
             Educational Impact
           </h2>
         </AnimatedSection>
         <StaggerContainer>
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-3">
             {impact.map((item) => (
               <StaggerItem key={item.title}>
-                <Card className="text-center h-full rounded-3xl border border-border/60 bg-card/80 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                <Card className="text-center h-full rounded-2xl border border-border/50 bg-card/80 card-elevated">
                   <CardContent className="pt-6 flex flex-col items-center gap-3">
-                    <div className="size-12 rounded-xl bg-[color:var(--brand-2)]/20 flex items-center justify-center">
-                      <item.icon className={`size-6 ${item.color}`} />
+                    <div className="size-11 rounded-xl bg-(--brand-2)/15 flex items-center justify-center">
+                      <item.icon className={`size-5 ${item.color}`} />
                     </div>
-                    <h3 className="font-semibold">{item.title}</h3>
+                    <h3 className="font-bold text-sm">{item.title}</h3>
                     <p className="text-sm text-muted-foreground">
                       {item.description}
                     </p>

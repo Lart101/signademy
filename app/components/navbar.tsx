@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
 import {
+  ArrowRight,
   BookOpen,
   Camera,
   ChevronDown,
@@ -43,9 +44,9 @@ const toolLinks = [
 ]
 
 const dropdownVariants = {
-  hidden: { opacity: 0, y: -4, scale: 0.97 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.15, ease: "easeOut" as const } },
-  exit: { opacity: 0, y: -4, scale: 0.97, transition: { duration: 0.1, ease: "easeIn" as const } },
+  hidden: { opacity: 0, y: 6, scale: 0.96 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] as const } },
+  exit: { opacity: 0, y: 4, scale: 0.97, transition: { duration: 0.12, ease: "easeIn" as const } },
 }
 
 function NavDropdown({
@@ -82,12 +83,15 @@ function NavDropdown({
         aria-expanded={open}
         aria-haspopup="menu"
         className={cn(
-          "inline-flex h-10 items-center justify-center rounded-full px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          isActive && "bg-accent text-accent-foreground"
+          "relative inline-flex h-9 items-center justify-center rounded-lg px-3 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          isActive && "text-foreground"
         )}
       >
         {label}
-        <ChevronDown className={cn("size-3 transition-transform duration-200", open && "rotate-180")} />
+        <ChevronDown className={cn("size-3 opacity-50 transition-transform duration-200", open && "rotate-180")} />
+        {isActive && (
+          <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-linear-to-r from-(--brand-1) to-(--brand-2)" />
+        )}
       </button>
       <AnimatePresence>
         {open && (
@@ -97,7 +101,7 @@ function NavDropdown({
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute top-full left-0 mt-2 w-64 rounded-2xl border bg-popover p-2 shadow-xl"
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-72 rounded-xl border border-border/80 bg-popover/95 backdrop-blur-xl p-1.5 shadow-lg shadow-black/8"
           >
             {links.map((link) => (
               <Link
@@ -106,14 +110,16 @@ function NavDropdown({
                 role="menuitem"
                 onClick={() => setOpen(false)}
                 className={cn(
-                  "flex items-start gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-accent hover:text-accent-foreground group",
-                  pathname === link.href && "bg-accent text-accent-foreground"
+                  "flex items-start gap-3 rounded-lg px-3 py-3 text-sm transition-all hover:bg-accent group",
+                  pathname === link.href && "bg-accent"
                 )}
               >
-                <link.icon className="size-4 mt-0.5 text-muted-foreground group-hover:text-[color:var(--brand-1)] transition-colors shrink-0" />
-                <div>
-                  <div className="font-medium">{link.label}</div>
-                  <div className="text-xs text-muted-foreground">{link.description}</div>
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-(--brand-1)/10 text-(--brand-1) group-hover:bg-(--brand-1)/15 transition-colors">
+                  <link.icon className="size-4" />
+                </span>
+                <div className="min-w-0">
+                  <div className="font-medium text-foreground">{link.label}</div>
+                  <div className="text-xs text-muted-foreground leading-snug">{link.description}</div>
                 </div>
               </Link>
             ))}
@@ -130,7 +136,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = React.useState(false)
 
   React.useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10)
+    const onScroll = () => setScrolled(window.scrollY > 8)
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
@@ -138,41 +144,46 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full border-b bg-background/70 backdrop-blur-xl transition-shadow duration-300",
-        scrolled && "shadow-md shadow-black/5"
+        "sticky top-0 z-50 w-full transition-all duration-300",
+        scrolled
+          ? "bg-background/80 backdrop-blur-2xl border-b border-border/50 shadow-sm shadow-black/3"
+          : "bg-transparent"
       )}
     >
       <a
         href="#content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 rounded-full bg-background px-4 py-2 text-sm shadow"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 rounded-lg bg-background px-4 py-2 text-sm shadow-lg"
       >
         Skip to content
       </a>
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <span className="flex size-9 items-center justify-center rounded-full bg-linear-to-br from-[color:var(--brand-1)] to-[color:var(--brand-2)] text-white shadow-sm">
-            <Hand className="size-5 transition-transform group-hover:rotate-12" />
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <span className="flex size-9 items-center justify-center rounded-xl bg-linear-to-br from-(--brand-1) to-(--brand-2) text-white shadow-sm shadow-black/10">
+            <Hand className="size-4.5 transition-transform duration-300 group-hover:rotate-12" />
           </span>
-          <span className="text-xl font-semibold tracking-tight font-display">
+          <span className="text-lg font-bold tracking-tight font-display">
             Signademy
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-0.5">
           <Link
             href="/"
             className={cn(
-              "inline-flex h-10 items-center justify-center rounded-full px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
-              pathname === "/" && "bg-accent text-accent-foreground"
+              "relative inline-flex h-9 items-center justify-center rounded-lg px-3 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground",
+              pathname === "/" && "text-foreground"
             )}
           >
             Home
+            {pathname === "/" && (
+              <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-linear-to-r from-(--brand-1) to-(--brand-2)" />
+            )}
           </Link>
 
           <NavDropdown
-            label="About Signademy"
+            label="About"
             links={aboutLinks}
             isActive={pathname === "/about" || pathname === "/mission"}
           />
@@ -180,12 +191,14 @@ export function Navbar() {
           <Link
             href="/modules"
             className={cn(
-              "inline-flex h-10 items-center justify-center rounded-full px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground gap-1.5",
-              pathname === "/modules" && "bg-accent text-accent-foreground"
+              "relative inline-flex h-9 items-center justify-center rounded-lg px-3 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground gap-1.5",
+              pathname === "/modules" && "text-foreground"
             )}
           >
-            <BookOpen className="size-3.5" />
-            Learn Modules
+            Modules
+            {pathname === "/modules" && (
+              <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-linear-to-r from-(--brand-1) to-(--brand-2)" />
+            )}
           </Link>
 
           <NavDropdown
@@ -197,69 +210,80 @@ export function Navbar() {
           <Link
             href="/challenge"
             className={cn(
-              "inline-flex h-10 items-center justify-center rounded-full px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground gap-1.5",
-              pathname === "/challenge" && "bg-accent text-accent-foreground"
+              "relative inline-flex h-9 items-center justify-center rounded-lg px-3 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground gap-1.5",
+              pathname === "/challenge" && "text-foreground"
             )}
           >
-            <Target className="size-3.5" />
             Challenge
+            {pathname === "/challenge" && (
+              <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-linear-to-r from-(--brand-1) to-(--brand-2)" />
+            )}
           </Link>
 
           <Link
             href="/contact"
             className={cn(
-              "inline-flex h-10 items-center justify-center rounded-full px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
-              pathname === "/contact" && "bg-accent text-accent-foreground"
+              "relative inline-flex h-9 items-center justify-center rounded-lg px-3 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground",
+              pathname === "/contact" && "text-foreground"
             )}
           >
-            Contact Us
+            Contact
+            {pathname === "/contact" && (
+              <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-linear-to-r from-(--brand-1) to-(--brand-2)" />
+            )}
           </Link>
-          <div className="ml-2 flex items-center gap-2">
+
+          <Separator orientation="vertical" className="mx-2 h-5" />
+
+          <div className="flex items-center gap-1.5">
             <ModelCacheManager />
             <ThemeToggle />
             <Button
               size="sm"
-              className="rounded-full bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] text-white shadow-lg shadow-black/10 hover:brightness-105"
+              className="ml-1 rounded-lg bg-linear-to-r from-(--brand-1) to-(--brand-2) text-white shadow-md shadow-black/10 hover:brightness-110 transition-all text-[13px] h-9 px-4 gap-1.5"
               asChild
             >
-              <Link href="/modules">Get Started</Link>
+              <Link href="/modules">
+                Get Started
+                <ArrowRight className="size-3.5" />
+              </Link>
             </Button>
           </div>
         </nav>
 
         {/* Mobile: Theme + Menu */}
-        <div className="flex items-center gap-1 lg:hidden">
+        <div className="flex items-center gap-1.5 lg:hidden">
           <ThemeToggle />
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="size-9">
                 <Menu className="size-5" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-72 p-0">
-              <SheetHeader className="border-b px-6 py-4">
-                <SheetTitle className="flex items-center gap-2">
-                  <span className="flex size-8 items-center justify-center rounded-full bg-linear-to-br from-[color:var(--brand-1)] to-[color:var(--brand-2)] text-white">
+            <SheetContent side="left" className="w-80 p-0">
+              <SheetHeader className="border-b border-border/50 px-5 py-4">
+                <SheetTitle className="flex items-center gap-2.5">
+                  <span className="flex size-8 items-center justify-center rounded-lg bg-linear-to-br from-(--brand-1) to-(--brand-2) text-white">
                     <Hand className="size-4" />
                   </span>
-                  <span className="font-display text-lg">Signademy</span>
+                  <span className="font-display text-base font-bold">Signademy</span>
                 </SheetTitle>
               </SheetHeader>
-              <nav className="flex flex-col gap-1 p-4">
+              <nav className="flex flex-col gap-0.5 p-3 overflow-y-auto max-h-[calc(100vh-80px)]">
                 <Link
                   href="/"
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
-                    pathname === "/" && "bg-accent"
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent",
+                    pathname === "/" && "bg-accent text-foreground"
                   )}
                 >
-                  <Home className="size-4" />
+                  <Home className="size-4 text-muted-foreground" />
                   Home
                 </Link>
 
-                <p className="px-3 pt-4 pb-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <p className="px-3 pt-5 pb-1.5 text-[11px] font-bold text-muted-foreground/70 uppercase tracking-widest">
                   About
                 </p>
                 {aboutLinks.map((link) => (
@@ -268,42 +292,42 @@ export function Navbar() {
                     href={link.href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
-                      pathname === link.href && "bg-accent"
+                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent",
+                      pathname === link.href && "bg-accent text-foreground"
                     )}
                   >
-                    <link.icon className="size-4" />
+                    <link.icon className="size-4 text-muted-foreground" />
                     {link.label}
                   </Link>
                 ))}
 
-                <p className="px-3 pt-4 pb-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <p className="px-3 pt-5 pb-1.5 text-[11px] font-bold text-muted-foreground/70 uppercase tracking-widest">
                   Learn
                 </p>
                 <Link
                   href="/modules"
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
-                    pathname === "/modules" && "bg-accent"
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent",
+                    pathname === "/modules" && "bg-accent text-foreground"
                   )}
                 >
-                  <BookOpen className="size-4" />
+                  <BookOpen className="size-4 text-muted-foreground" />
                   Learn Modules
                 </Link>
                 <Link
                   href="/challenge"
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
-                    pathname === "/challenge" && "bg-accent"
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent",
+                    pathname === "/challenge" && "bg-accent text-foreground"
                   )}
                 >
-                  <Target className="size-4" />
+                  <Target className="size-4 text-muted-foreground" />
                   Challenge
                 </Link>
 
-                <p className="px-3 pt-4 pb-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <p className="px-3 pt-5 pb-1.5 text-[11px] font-bold text-muted-foreground/70 uppercase tracking-widest">
                   Tools
                 </p>
                 {toolLinks.map((link) => (
@@ -312,46 +336,47 @@ export function Navbar() {
                     href={link.href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
-                      pathname === link.href && "bg-accent"
+                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent",
+                      pathname === link.href && "bg-accent text-foreground"
                     )}
                   >
-                    <link.icon className="size-4" />
+                    <link.icon className="size-4 text-muted-foreground" />
                     {link.label}
                   </Link>
                 ))}
 
-                <p className="px-3 pt-4 pb-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Other
-                </p>
+                <Separator className="my-3" />
+
                 <Link
                   href="/contact"
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
-                    pathname === "/contact" && "bg-accent"
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent",
+                    pathname === "/contact" && "bg-accent text-foreground"
                   )}
                 >
-                  <Mail className="size-4" />
+                  <Mail className="size-4 text-muted-foreground" />
                   Contact Us
                 </Link>
 
-                <Separator className="my-2" />
-
                 <ModelCacheManager>
-                  <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent">
-                    <HardDrive className="size-4" />
+                  <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent text-left">
+                    <HardDrive className="size-4 text-muted-foreground" />
                     Manage Model Cache
                   </button>
                 </ModelCacheManager>
-                <Button
-                  className="mt-2 rounded-full bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] text-white"
-                  asChild
-                >
-                  <Link href="/modules" onClick={() => setOpen(false)}>
-                    Get Started
-                  </Link>
-                </Button>
+
+                <div className="mt-3 px-1">
+                  <Button
+                    className="w-full rounded-lg bg-linear-to-r from-(--brand-1) to-(--brand-2) text-white shadow-md gap-2"
+                    asChild
+                  >
+                    <Link href="/modules" onClick={() => setOpen(false)}>
+                      Get Started
+                      <ArrowRight className="size-4" />
+                    </Link>
+                  </Button>
+                </div>
               </nav>
             </SheetContent>
           </Sheet>

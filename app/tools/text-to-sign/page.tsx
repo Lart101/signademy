@@ -258,8 +258,8 @@ export default function TextToSignPage() {
         <Badge variant="secondary" className="mb-4">
           Learning Tool
         </Badge>
-        <h1 className="font-display text-4xl font-semibold tracking-tight md:text-5xl">
-          <span className="bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] bg-clip-text text-transparent">
+        <h1 className="font-display text-4xl font-bold tracking-tight md:text-5xl">
+          <span className="gradient-text">
             Text to Sign
           </span>
         </h1>
@@ -293,10 +293,10 @@ export default function TextToSignPage() {
 
       {/* Input Section */}
       {!submitted ? (
-        <Card className="max-w-3xl mx-auto rounded-3xl glass-panel">
+        <Card className="max-w-3xl mx-auto rounded-2xl glass-panel">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Type className="size-5 text-[color:var(--brand-1)]" />
+              <Type className="size-5 text-(--brand-1)" />
               Enter Your Text
             </CardTitle>
             <CardDescription>
@@ -379,7 +379,7 @@ export default function TextToSignPage() {
             </div>
 
             <Button
-              className="w-full rounded-full bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] text-white"
+              className="w-full rounded-lg bg-linear-to-r from-(--brand-1) to-(--brand-2) text-white"
               size="lg"
               onClick={handleSubmit}
               disabled={letters.length === 0}
@@ -392,7 +392,7 @@ export default function TextToSignPage() {
       ) : (
         <div className="space-y-6">
           {/* Progress Bar - from legacy progress bar */}
-          <Card className="rounded-3xl border border-border/60 bg-card/80">
+          <Card className="rounded-2xl border border-border/50 bg-card/80">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-center">
                 <CardTitle className="text-lg">
@@ -408,10 +408,10 @@ export default function TextToSignPage() {
 
           <div className="grid gap-6 md:grid-cols-[1fr_280px]">
             {/* Main display area */}
-            <Card className="rounded-3xl border border-border/60 bg-card/80">
+            <Card className="rounded-2xl border border-border/50 bg-card/80">
               <CardHeader className="text-center pb-2">
                 <p
-                  className={`text-7xl font-bold text-[color:var(--brand-1)] transition-opacity duration-300 ${
+                  className={`text-7xl font-bold text-(--brand-1) transition-opacity duration-300 ${
                     isFading ? "opacity-0" : "opacity-100"
                   }`}
                 >
@@ -457,7 +457,7 @@ export default function TextToSignPage() {
                   <div className="flex items-center gap-2">
                     <Button
                       size="lg"
-                      className="rounded-full bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] text-white"
+                      className="rounded-lg bg-linear-to-r from-(--brand-1) to-(--brand-2) text-white"
                       onClick={handlePlayPause}
                     >
                       {isPlaying ? (
@@ -532,7 +532,7 @@ export default function TextToSignPage() {
               </Card>
 
               {/* Letter sequence - from legacy clickable letter sequence */}
-              <Card className="rounded-3xl border border-border/60 bg-card/80">
+              <Card className="rounded-2xl border border-border/50 bg-card/80">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">Letter Sequence</CardTitle>
                   <CardDescription className="text-xs">
@@ -547,7 +547,7 @@ export default function TextToSignPage() {
                         onClick={() => handleLetterClick(i)}
                         className={`w-8 h-8 rounded text-xs font-semibold transition-all ${
                           i === currentIndex
-                            ? "bg-[color:var(--brand-1)] text-white scale-110"
+                            ? "bg-(--brand-1) text-white scale-110"
                             : i < currentIndex
                             ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                             : "bg-secondary hover:bg-secondary/80"
@@ -562,7 +562,7 @@ export default function TextToSignPage() {
 
               {/* Speech input - from legacy voice recognition */}
               {speechSupported && (
-                <Card className="rounded-3xl border border-border/60 bg-card/80">
+                <Card className="rounded-2xl border border-border/50 bg-card/80">
                   <CardContent className="pt-4">
                     <p className="text-sm font-semibold mb-2">Voice Input</p>
                     <Button

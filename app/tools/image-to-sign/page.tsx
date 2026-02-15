@@ -102,7 +102,6 @@ export default function ImageToSignPage() {
     return () => {
       if (preview) URL.revokeObjectURL(preview);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preview]);
 
   // Cancellation ref to prevent stale analysis results after reset
@@ -253,8 +252,8 @@ export default function ImageToSignPage() {
         <Badge variant="secondary" className="mb-4">
           AI Tool
         </Badge>
-        <h1 className="font-display text-4xl font-semibold tracking-tight md:text-5xl">
-          <span className="bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] bg-clip-text text-transparent">
+        <h1 className="font-display text-4xl font-bold tracking-tight md:text-5xl">
+          <span className="gradient-text">
             Image to Sign Detection
           </span>
         </h1>
@@ -281,12 +280,12 @@ export default function ImageToSignPage() {
       </div>
 
       {/* Model Selector - from legacy createModelSelector() */}
-      <Card className="mb-6 rounded-3xl glass-panel">
+      <Card className="mb-6 rounded-2xl glass-panel">
         <CardContent className="pt-6">
           <div className="flex items-center gap-4 flex-wrap">
             <label className="text-sm font-medium">Select Model:</label>
             <Select value={modelCategory} onValueChange={handleModelChange}>
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-50">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -298,7 +297,7 @@ export default function ImageToSignPage() {
               </SelectContent>
             </Select>
             {modelLoading && (
-              <div className="flex-1 min-w-[200px]">
+              <div className="flex-1 min-w-50">
                 <Progress value={loadingProgress} className="h-2" />
                 <p className="text-xs text-muted-foreground mt-1">
                   Loading model... {loadingProgress}%
@@ -316,10 +315,10 @@ export default function ImageToSignPage() {
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Upload / Canvas Area */}
-        <Card className="rounded-3xl border border-border/60 bg-card/80">
+        <Card className="rounded-2xl border border-border/50 bg-card/80">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileImage className="size-5 text-[color:var(--brand-1)]" />
+              <FileImage className="size-5 text-(--brand-1)" />
               Upload Image
             </CardTitle>
             <CardDescription>
@@ -331,8 +330,8 @@ export default function ImageToSignPage() {
               <label
                 className={`flex flex-col items-center justify-center aspect-square rounded-lg border-2 border-dashed cursor-pointer transition-colors ${
                   dragActive
-                    ? "border-[color:var(--brand-1)] bg-[color:var(--brand-1)]/10"
-                    : "border-muted-foreground/25 hover:border-[color:var(--brand-1)]/60"
+                    ? "border-(--brand-1) bg-(--brand-1)/10"
+                    : "border-muted-foreground/25 hover:border-(--brand-1)/60"
                 }`}
                 onDragOver={(e) => {
                   e.preventDefault();
@@ -390,7 +389,7 @@ export default function ImageToSignPage() {
 
             {preview && !result && (
               <Button
-                className="w-full mt-4 rounded-full bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] text-white"
+                className="w-full mt-4 rounded-lg bg-linear-to-r from-(--brand-1) to-(--brand-2) text-white"
                 onClick={handleAnalyze}
                 disabled={isAnalyzing || !modelReady}
               >
@@ -408,7 +407,7 @@ export default function ImageToSignPage() {
         </Card>
 
         {/* Results Area - exact from legacy gesture_output */}
-        <Card className="rounded-3xl border border-border/60 bg-card/80">
+        <Card className="rounded-2xl border border-border/50 bg-card/80">
           <CardHeader>
             <CardTitle>Detection Results</CardTitle>
             <CardDescription>AI analysis of the uploaded image</CardDescription>
@@ -416,7 +415,7 @@ export default function ImageToSignPage() {
           <CardContent>
             {isAnalyzing && (
               <div className="flex flex-col items-center justify-center py-12 gap-4">
-                <div className="size-12 rounded-full border-4 border-[color:var(--brand-1)]/20 border-t-[color:var(--brand-1)] animate-spin" />
+                <div className="size-12 rounded-full border-4 border-(--brand-1)/20 border-t-(--brand-1) animate-spin" />
                 <p className="text-sm text-muted-foreground">
                   Analyzing image...
                 </p>
@@ -438,7 +437,7 @@ export default function ImageToSignPage() {
                   <p className="text-sm text-muted-foreground">
                     {hasValidResult ? "Detected Sign" : "Result"}
                   </p>
-                  <p className="text-6xl font-bold text-[color:var(--brand-1)] mt-2">
+                  <p className="text-6xl font-bold text-(--brand-1) mt-2">
                     {result.sign}
                   </p>
                 </div>
@@ -475,7 +474,7 @@ export default function ImageToSignPage() {
       </div>
 
       {/* Limitations */}
-      <Card className="mt-8 rounded-3xl bg-muted/60 border border-border/60">
+      <Card className="mt-8 rounded-2xl bg-muted/60 border border-border/50">
         <CardContent className="pt-6">
           <h3 className="text-sm font-semibold mb-3">Tips</h3>
           <ul className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">

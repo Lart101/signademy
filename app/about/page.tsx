@@ -71,33 +71,31 @@ const limitations = [
 
 export default function AboutPage() {
   return (
-    <div className="container mx-auto px-4 py-20 max-w-5xl">
+    <div className="container mx-auto px-4 lg:px-6 py-20 max-w-4xl">
       {/* Header */}
       <AnimatedSection>
-        <div className="text-center mb-12">
-          <Badge variant="secondary" className="mb-4">
-            <Hand className="size-3 mr-1" /> About
+        <div className="text-center mb-14">
+          <Badge variant="secondary" className="mb-5 rounded-lg text-xs gap-1.5 px-3 py-1.5">
+            <Hand className="size-3" /> About
           </Badge>
-          <h1 className="text-4xl font-semibold tracking-tight font-display md:text-5xl">
+          <h1 className="text-4xl font-bold tracking-tight font-display md:text-5xl">
             About{" "}
-            <span className="bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] bg-clip-text text-transparent">
-              Signademy
-            </span>
+            <span className="gradient-text">Signademy</span>
           </h1>
-          <p className="text-muted-foreground mt-4 text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground mt-5 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
             An interactive educational platform for learning American Sign
             Language through video lessons, challenges, and AI-powered tools.
           </p>
         </div>
       </AnimatedSection>
 
-      <Separator className="my-8" />
+      <Separator className="my-10 opacity-50" />
 
       {/* Project Overview */}
       <AnimatedSection>
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4 font-display">Project Overview</h2>
-          <p className="text-muted-foreground leading-relaxed">
+        <section className="mb-14">
+          <h2 className="text-xl font-bold mb-4 font-display sm:text-2xl">Project Overview</h2>
+          <p className="text-muted-foreground leading-relaxed text-[15px]">
             Signademy is a web-based platform designed to make learning American
             Sign Language (ASL) accessible, engaging, and interactive. It provides
             a comprehensive suite of tools and learning modules that cater to
@@ -110,23 +108,23 @@ export default function AboutPage() {
       </AnimatedSection>
 
       {/* Features */}
-      <section className="mb-12">
+      <section className="mb-14">
         <AnimatedSection>
-          <h2 className="text-2xl font-semibold mb-6 font-display">What&apos;s Included</h2>
+          <h2 className="text-xl font-bold mb-6 font-display sm:text-2xl">What&apos;s Included</h2>
         </AnimatedSection>
         <StaggerContainer>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             {features.map((feature) => (
               <StaggerItem key={feature.title}>
-                <Card className="h-full rounded-3xl border border-border/60 bg-card/80 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-base">
-                      <div className="size-9 rounded-lg bg-[color:var(--brand-1)]/10 flex items-center justify-center">
-                        <feature.icon className="size-4 text-[color:var(--brand-1)]" />
+                <Card className="h-full rounded-2xl border border-border/50 bg-card/80 card-elevated">
+                  <CardHeader className="space-y-3">
+                    <CardTitle className="flex items-center gap-3 text-[15px]">
+                      <div className="size-9 rounded-lg bg-(--brand-1)/10 flex items-center justify-center shrink-0">
+                        <feature.icon className="size-4 text-(--brand-1)" />
                       </div>
                       {feature.title}
                     </CardTitle>
-                    <CardDescription>{feature.description}</CardDescription>
+                    <CardDescription className="leading-relaxed">{feature.description}</CardDescription>
                   </CardHeader>
                 </Card>
               </StaggerItem>
@@ -137,9 +135,9 @@ export default function AboutPage() {
 
       {/* Technology */}
       <AnimatedSection>
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4 font-display">Technology Approach</h2>
-          <p className="text-muted-foreground leading-relaxed">
+        <section className="mb-14">
+          <h2 className="text-xl font-bold mb-4 font-display sm:text-2xl">Technology Approach</h2>
+          <p className="text-muted-foreground leading-relaxed text-[15px]">
             Signademy leverages modern web technologies to deliver a seamless
             learning experience. The platform uses AI-powered computer vision
             models for real-time hand sign detection, video processing for
@@ -152,14 +150,14 @@ export default function AboutPage() {
       {/* Limitations */}
       <AnimatedSection>
         <section>
-          <h2 className="text-2xl font-semibold mb-4 font-display">Project Limitations</h2>
-          <Card className="rounded-3xl border border-border/60 bg-muted/50">
+          <h2 className="text-xl font-bold mb-4 font-display sm:text-2xl">Known Limitations</h2>
+          <Card className="rounded-2xl border border-border/50 bg-muted/30">
             <CardContent className="pt-6">
-              <ul className="space-y-3 text-sm text-muted-foreground">
+              <ul className="space-y-3">
                 {limitations.map((limitation, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <AlertTriangle className="size-4 text-yellow-500 mt-0.5 shrink-0" />
-                    {limitation}
+                  <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
+                    <AlertTriangle className="size-4 text-amber-500 mt-0.5 shrink-0" />
+                    <span className="leading-relaxed">{limitation}</span>
                   </li>
                 ))}
               </ul>

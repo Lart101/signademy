@@ -328,21 +328,57 @@ export default function ModulesPage() {
         setLoadingProgress(50);
         const fr = await FilesetResolver.forVisionTasks(getMediaPipeWasm());
         setLoadingProgress(70);
-        // Try cache first, then fall back to URL
-        const { getModelBuffer } = await import("@/lib/model-cache");
-        let baseOptions: Record<string, unknown>;
+        // Always use cache system for both standard and custom models
+        const { getModelBuffer, downloadAndCacheCustomModel, isModelCached, getCachedCustomModelBuffer } = await import("@/lib/model-cache");
+        let buffer: ArrayBuffer;
+        
         if (!model?.model_url) {
-          // Standard category — use cache system
-          const buffer = await getModelBuffer(moduleKey);
-          baseOptions = { modelAssetBuffer: new Uint8Array(buffer), delegate: "GPU" };
+          // Standard category — use built-in cache system
+          const isCached = await isModelCached(moduleKey);
+          if (!isCached) {
+            toast.info("Downloading model for offline use...", {
+              description: "This model will be cached for faster future loads.",
+            });
+          }
+          buffer = await getModelBuffer(moduleKey, (progress) => {
+            // Update progress: 70-100% for model download
+            const modelProgress = 70 + (progress.percent * 0.3);
+            setLoadingProgress(Math.round(modelProgress));
+          });
+          if (!isCached) {
+            toast.success("Model cached successfully!", {
+              description: "Future loads will be instant.",
+            });
+          }
         } else {
-          // Custom DB model URL — use URL directly
+          // Custom DB model URL — download and cache with progress
           const modelUrl = resolveModelUrl(moduleKey, model);
-          baseOptions = { modelAssetPath: modelUrl, delegate: "GPU" };
+          const displayName = model.model_file_name || moduleKey;
+          const isCached = await getCachedCustomModelBuffer(modelUrl);
+          if (!isCached) {
+            toast.info("Downloading custom model for offline use...", {
+              description: "This model will be cached for faster future loads.",
+            });
+          }
+          buffer = await downloadAndCacheCustomModel(modelUrl, displayName, (progress) => {
+            // Update progress: 70-100% for model download
+            const modelProgress = 70 + (progress.percent * 0.3);
+            setLoadingProgress(Math.round(modelProgress));
+          });
+          if (!isCached) {
+            toast.success("Custom model cached successfully!", {
+              description: "Future loads will be instant.",
+            });
+          }
         }
+        
+        setLoadingProgress(95);
         gestureRecognizerRef.current =
           await GestureRecognizer.createFromOptions(fr, {
-            baseOptions,
+            baseOptions: {
+              modelAssetBuffer: new Uint8Array(buffer),
+              delegate: "GPU",
+            },
             runningMode: runningModeRef.current,
           });
         setLoadingProgress(100);
@@ -350,6 +386,9 @@ export default function ModulesPage() {
       } catch (err) {
         console.error("Model load error:", err);
         setModelError("Failed to load AI model. Please refresh and try again.");
+        toast.error("Failed to load AI model", {
+          description: "Please check your connection and try again.",
+        });
       } finally {
         setModelLoading(false);
       }
@@ -441,7 +480,6 @@ export default function ModulesPage() {
     if (webcamRunningRef.current) {
       window.requestAnimationFrame(predictWebcam);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ─── Toggle camera ─────────────────────────────
@@ -628,7 +666,7 @@ export default function ModulesPage() {
   if (dataLoading) {
     return (
       <div className="container mx-auto px-4 py-32 text-center">
-        <Loader2 className="size-10 animate-spin mx-auto mb-4 text-[color:var(--brand-1)]" />
+        <Loader2 className="size-10 animate-spin mx-auto mb-4 text-(--brand-1)" />
         <p className="text-muted-foreground">Loading modules...</p>
       </div>
     );
@@ -638,9 +676,9 @@ export default function ModulesPage() {
     <div className="container mx-auto px-4 py-16">
       {/* Header */}
       <div className="text-center mb-10">
-        <h1 className="text-4xl font-semibold tracking-tight font-display md:text-5xl">
+        <h1 className="text-4xl font-bold tracking-tight font-display md:text-5xl">
           📚{" "}
-          <span className="bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] bg-clip-text text-transparent">
+          <span className="gradient-text">
             Learning Modules
           </span>
         </h1>
@@ -661,7 +699,7 @@ export default function ModulesPage() {
               onClick={() => handleModuleSelect(mod.module_key)}
               className={`flex items-center gap-3 w-full rounded-lg px-3 py-3 text-left transition-colors ${
                 selectedModuleKey === mod.module_key
-                  ? "bg-linear-to-r from-[color:var(--brand-1)]/10 to-[color:var(--brand-2)]/10 border border-[color:var(--brand-1)]/30"
+                  ? "bg-linear-to-r from-(--brand-1)/10 to-(--brand-2)/10 border border-(--brand-1)/30"
                   : "hover:bg-accent"
               }`}
             >
@@ -687,7 +725,7 @@ export default function ModulesPage() {
             </p>
             {!practiceMode ? (
               <Button
-                className="w-full rounded-full bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] text-white"
+                className="w-full rounded-full bg-linear-to-r from-(--brand-1) to-(--brand-2) text-white"
                 size="sm"
                 onClick={enterPractice}
               >
@@ -825,7 +863,7 @@ export default function ModulesPage() {
                     </Button>
                     <Button
                       size="lg"
-                      className="rounded-full bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] text-white"
+                      className="rounded-full bg-linear-to-r from-(--brand-1) to-(--brand-2) text-white"
                       onClick={togglePlayPause}
                       disabled={!videoLoaded || mediaKind === "iframe"}
                     >
@@ -889,6 +927,14 @@ export default function ModulesPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* Model error */}
+                  {modelError && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{modelError}</AlertDescription>
+                    </Alert>
+                  )}
+
                   {/* Model loading */}
                   {modelLoading && (
                     <div>
@@ -951,7 +997,7 @@ export default function ModulesPage() {
                         className={`text-xl font-bold ${
                           practiceCorrect
                             ? "text-green-600"
-                            : "text-[color:var(--brand-1)]"
+                            : "text-(--brand-1)"
                         }`}
                       >
                         {detectedSign}
@@ -1005,8 +1051,8 @@ export default function ModulesPage() {
                   onClick={() => handleItemSelect(i)}
                   className={`rounded-lg border p-3 text-center transition-all hover:shadow-md ${
                     selectedItemIdx === i
-                      ? "border-[color:var(--brand-1)] bg-[color:var(--brand-1)]/10 shadow-sm ring-2 ring-[color:var(--brand-1)]/20"
-                      : "hover:border-[color:var(--brand-1)]/40"
+                      ? "border-(--brand-1) bg-(--brand-1)/10 shadow-sm ring-2 ring-(--brand-1)/20"
+                      : "hover:border-(--brand-1)/40"
                   }`}
                 >
                   <p className="font-semibold text-sm">{item.item_name}</p>

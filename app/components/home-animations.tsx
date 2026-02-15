@@ -4,20 +4,20 @@ import { motion, type Variants } from "framer-motion"
 import { AnimatedCounter } from "./animated-section"
 import type { ReactNode } from "react"
 
-const ease = [0.25, 0.46, 0.45, 0.94] as const
+const ease = [0.16, 1, 0.3, 1] as const
 
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0 },
 }
 
 const staggerContainer: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
+  visible: { transition: { staggerChildren: 0.06 } },
 }
 
 const staggerChild: Variants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 16 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease } },
 }
 
@@ -28,10 +28,10 @@ function Hero({ children }: { children: ReactNode }) {
       animate="visible"
       variants={{
         hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
+        visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
       }}
     >
-      <motion.div variants={fadeUp} transition={{ duration: 0.7, ease }}>
+      <motion.div variants={fadeUp} transition={{ duration: 0.8, ease }}>
         {children}
       </motion.div>
     </motion.div>
@@ -44,15 +44,15 @@ function Stats({ stats }: { stats: { value: number; suffix: string; label: strin
       className="grid grid-cols-2 md:grid-cols-4 gap-8"
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-50px" }}
+      viewport={{ once: true, margin: "-40px" }}
       variants={staggerContainer}
     >
       {stats.map((stat) => (
         <motion.div key={stat.label} className="text-center" variants={staggerChild}>
-          <p className="text-3xl font-semibold bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] bg-clip-text text-transparent">
+          <p className="text-3xl font-bold gradient-text">
             <AnimatedCounter value={stat.value} suffix={stat.suffix} />
           </p>
-          <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+          <p className="text-sm text-muted-foreground mt-1.5">{stat.label}</p>
         </motion.div>
       ))}
     </motion.div>
@@ -62,7 +62,7 @@ function Stats({ stats }: { stats: { value: number; suffix: string; label: strin
 function SectionHeader({ title, description }: { title: string; description: string }) {
   return (
     <motion.div
-      className="text-center mb-12"
+      className="text-center mb-14"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-50px" }}
@@ -70,10 +70,10 @@ function SectionHeader({ title, description }: { title: string; description: str
       transition={{ duration: 0.6, ease }}
     >
       <p className="section-kicker">Signademy</p>
-      <h2 className="mt-3 text-3xl font-semibold tracking-tight font-display md:text-4xl">
+      <h2 className="mt-3 text-3xl font-bold tracking-tight font-display md:text-4xl">
         {title}
       </h2>
-      <p className="text-muted-foreground mt-3 max-w-2xl mx-auto text-base md:text-lg">
+      <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
         {description}
       </p>
     </motion.div>

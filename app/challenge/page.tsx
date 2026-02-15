@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import {
   Clock,
   Flame,
-  Play,
   RotateCcw,
   SkipForward,
   Trophy,
@@ -682,9 +681,9 @@ export default function ChallengePage() {
     <div className="container mx-auto px-4 py-20 max-w-5xl">
       {/* Header */}
       <div className="text-center mb-10">
-        <h1 className="text-4xl font-semibold tracking-tight font-display md:text-5xl">
+        <h1 className="text-4xl font-bold tracking-tight font-display md:text-5xl">
           🎯{" "}
-          <span className="bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] bg-clip-text text-transparent">
+          <span className="gradient-text">
             Challenge Games
           </span>
         </h1>
@@ -697,7 +696,7 @@ export default function ChallengePage() {
       {pageState === "menu" && (
         <div className="space-y-6">
           {/* Model selector */}
-          <Card className="rounded-3xl border border-border/60 bg-card/80">
+          <Card className="rounded-2xl border border-border/50 bg-card/80">
             <CardContent className="pt-6">
               <div className="flex items-center gap-4 flex-wrap">
                 <label className="text-sm font-medium">AI Model:</label>
@@ -741,7 +740,7 @@ export default function ChallengePage() {
             {challengeModes.map((mode) => (
               <Card
                 key={mode.id}
-                className="group rounded-3xl border border-border/60 bg-card/80 hover:shadow-lg transition-all cursor-pointer"
+                className="group rounded-2xl border border-border/50 bg-card/80 hover:shadow-lg transition-all cursor-pointer"
                 onClick={() => startGame(mode.id)}
               >
                 <CardHeader>
@@ -759,7 +758,7 @@ export default function ChallengePage() {
                   <ul className="space-y-1 text-sm text-muted-foreground">
                     {mode.rules.map((rule, i) => (
                       <li key={i} className="flex items-center gap-2">
-                        <div className="size-1.5 rounded-full bg-[color:var(--brand-1)]" />
+                        <div className="size-1.5 rounded-full bg-(--brand-1)" />
                         {rule}
                       </li>
                     ))}
@@ -837,7 +836,7 @@ export default function ChallengePage() {
 
           <div className="grid gap-6 md:grid-cols-[1fr_300px]">
             {/* Main question area */}
-            <Card className="border-2 rounded-3xl">
+            <Card className="border-2 rounded-2xl">
               <CardHeader className="text-center">
                 <Badge className="w-fit mx-auto mb-2">
                   {game.mode === "flash-sign"
@@ -852,7 +851,7 @@ export default function ChallengePage() {
                     ? "Which video shows:"
                     : "Sign this:"}
                 </CardTitle>
-                <p className="text-5xl font-bold text-[color:var(--brand-1)] mt-2">
+                <p className="text-5xl font-bold text-(--brand-1) mt-2">
                   {currentQ.word}
                 </p>
                 {game.mode === "endless" && (
@@ -874,7 +873,7 @@ export default function ChallengePage() {
                         <button
                           key={opt}
                           onClick={() => handleSignMatchSelect(opt)}
-                          className={`rounded-lg border-2 p-2 transition-all hover:border-[color:var(--brand-1)] ${
+                          className={`rounded-lg border-2 p-2 transition-all hover:border-(--brand-1) ${
                             game.signMatchSelected === opt
                               ? opt === currentQ.word
                                 ? "border-green-500"
@@ -969,7 +968,7 @@ export default function ChallengePage() {
                 {game.showResult && (
                   <Button
                     onClick={nextQuestion}
-                    className="w-full rounded-full bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] text-white"
+                    className="w-full rounded-lg bg-linear-to-r from-(--brand-1) to-(--brand-2) text-white"
                     size="lg"
                   >
                     {game.mode === "endless" && game.lives <= 0
@@ -985,7 +984,7 @@ export default function ChallengePage() {
 
             {/* Webcam sidebar */}
             <div className="space-y-4">
-              <Card className="rounded-3xl border border-border/60 bg-card/80">
+              <Card className="rounded-2xl border border-border/50 bg-card/80">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center gap-2">
                     <Camera className="size-4" />
@@ -1034,7 +1033,7 @@ export default function ChallengePage() {
                       <p className="text-xs text-muted-foreground">
                         Detected:
                       </p>
-                      <p className="text-xl font-bold text-[color:var(--brand-1)]">
+                      <p className="text-xl font-bold text-(--brand-1)">
                         {game.detectedSign}
                       </p>
                       <p className="text-xs text-muted-foreground">
@@ -1046,7 +1045,7 @@ export default function ChallengePage() {
               </Card>
 
               {/* Game info */}
-              <Card className="rounded-3xl border border-border/60 bg-card/80">
+              <Card className="rounded-2xl border border-border/50 bg-card/80">
                 <CardContent className="pt-4 space-y-2 text-sm text-muted-foreground">
                   <p>✅ Correct: {game.correct}</p>
                   <p>❌ Wrong: {game.wrong}</p>
@@ -1061,7 +1060,7 @@ export default function ChallengePage() {
       {/* ═══════ RESULTS SCREEN ═══════ */}
       {pageState === "results" && (
         <div className="max-w-2xl mx-auto">
-          <Card className="text-center border-2 rounded-3xl">
+          <Card className="text-center border-2 rounded-2xl">
             <CardHeader>
               <CardTitle className="text-3xl mb-2">🎉 Game Over!</CardTitle>
               <CardDescription className="text-lg">
@@ -1076,7 +1075,7 @@ export default function ChallengePage() {
               {/* Score */}
               <div>
                 <p className="text-muted-foreground">Final Score</p>
-                <p className="text-5xl font-bold text-[color:var(--brand-1)]">
+                <p className="text-5xl font-bold text-(--brand-1)">
                   {game.score}
                 </p>
               </div>
@@ -1115,7 +1114,7 @@ export default function ChallengePage() {
               <div className="flex flex-col gap-2 mt-6">
                 <Button
                   onClick={() => startGame(game.mode)}
-                  className="rounded-full bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] text-white"
+                  className="rounded-lg bg-linear-to-r from-(--brand-1) to-(--brand-2) text-white"
                   size="lg"
                 >
                   <RotateCcw className="size-4 mr-2" />

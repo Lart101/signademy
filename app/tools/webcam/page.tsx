@@ -281,8 +281,8 @@ export default function WebcamPage() {
         <Badge variant="secondary" className="mb-4">
           AI Tool
         </Badge>
-        <h1 className="font-display text-4xl font-semibold tracking-tight md:text-5xl">
-          <span className="bg-linear-to-r from-(--brand-1) to-(--brand-2) bg-clip-text text-transparent">
+        <h1 className="font-display text-4xl font-bold tracking-tight md:text-5xl">
+          <span className="gradient-text">
             Webcam Sign Detection
           </span>
         </h1>
@@ -309,7 +309,7 @@ export default function WebcamPage() {
       </div>
 
       {/* Model Selector - from legacy createModelSelector() */}
-      <Card className="mb-6 rounded-3xl glass-panel">
+      <Card className="mb-6 rounded-2xl glass-panel">
         <CardContent className="pt-6">
           <div className="flex items-center gap-4 flex-wrap">
             <label className="text-sm font-medium">Select Model:</label>
@@ -347,7 +347,7 @@ export default function WebcamPage() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         {/* Webcam Feed */}
-        <Card className="rounded-3xl border border-border/60 bg-card/80">
+        <Card className="rounded-2xl border border-border/50 bg-card/80">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Camera className="size-5 text-(--brand-1)" />
@@ -392,7 +392,7 @@ export default function WebcamPage() {
               {!streaming ? (
                 <Button
                   size="lg"
-                  className="rounded-full bg-linear-to-r from-(--brand-1) to-(--brand-2) text-white"
+                  className="rounded-lg bg-linear-to-r from-(--brand-1) to-(--brand-2) text-white"
                   onClick={toggleCamera}
                   disabled={!modelReady}
                 >
@@ -415,7 +415,7 @@ export default function WebcamPage() {
 
         {/* Detection Sidebar - exact from legacy gesture_output */}
         <div className="space-y-6">
-          <Card className="rounded-3xl border border-border/60 bg-card/80">
+          <Card className="rounded-2xl border border-border/50 bg-card/80">
             <CardHeader>
               <CardTitle className="text-base">Detection Result</CardTitle>
             </CardHeader>
@@ -447,7 +447,7 @@ export default function WebcamPage() {
           </Card>
 
           {/* Tips */}
-          <Card className="rounded-3xl border border-border/60 bg-card/80">
+          <Card className="rounded-2xl border border-border/50 bg-card/80">
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <Sun className="size-4 text-yellow-500" />

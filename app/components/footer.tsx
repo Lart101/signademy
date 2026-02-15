@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowUp, Hand, Heart } from "lucide-react"
+import { ArrowRight, ArrowUp, Hand, Heart } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 
@@ -8,121 +8,120 @@ function BackToTop() {
     <Button
       variant="outline"
       size="icon"
-      className="size-9 rounded-full"
+      className="size-8 rounded-lg"
       asChild
     >
       <a href="#top" aria-label="Back to top">
-        <ArrowUp className="size-4" />
+        <ArrowUp className="size-3.5" />
       </a>
     </Button>
   )
 }
 
+const footerLinks = {
+  learn: [
+    { href: "/modules", label: "Learning Modules" },
+    { href: "/challenge", label: "Challenges" },
+    { href: "/about", label: "How It Works" },
+  ],
+  tools: [
+    { href: "/tools/text-to-sign", label: "Text → Sign" },
+    { href: "/tools/image-to-sign", label: "Image → Sign" },
+    { href: "/tools/webcam", label: "Webcam → Sign" },
+  ],
+  about: [
+    { href: "/about", label: "About Signademy" },
+    { href: "/mission", label: "Mission & Vision" },
+    { href: "/contact", label: "Contact Us" },
+  ],
+}
+
 export function Footer() {
   return (
-    <footer className="border-t bg-muted/40 relative">
-      <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-[color:var(--brand-1)]/50 to-transparent" />
-      <div className="container mx-auto px-4 py-14">
-        <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
-          {/* Brand */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <span className="flex size-10 items-center justify-center rounded-full bg-linear-to-br from-[color:var(--brand-1)] to-[color:var(--brand-2)] text-white">
-                <Hand className="size-5" />
+    <footer className="relative border-t border-border/40">
+      {/* Gradient top line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-(--brand-1)/40 to-transparent" />
+
+      <div className="container mx-auto px-4 lg:px-6 py-16">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
+          {/* Brand Column */}
+          <div className="space-y-5">
+            <div className="flex items-center gap-2.5">
+              <span className="flex size-9 items-center justify-center rounded-xl bg-linear-to-br from-(--brand-1) to-(--brand-2) text-white shadow-sm">
+                <Hand className="size-4.5" />
               </span>
-              <span className="text-xl font-semibold font-display">Signademy</span>
+              <span className="text-lg font-bold font-display">Signademy</span>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Learn American Sign Language through an inviting, structured journey and AI-powered practice tools.
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
+              Learn American Sign Language through guided modules, AI-powered tools, and engaging challenges.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex gap-2">
               <Button
                 size="sm"
-                className="rounded-full bg-linear-to-r from-[color:var(--brand-1)] to-[color:var(--brand-2)] text-white"
+                className="rounded-lg bg-linear-to-r from-(--brand-1) to-(--brand-2) text-white shadow-sm text-xs h-8 gap-1.5"
                 asChild
               >
-                <Link href="/modules">Start Learning</Link>
+                <Link href="/modules">
+                  Start Learning
+                  <ArrowRight className="size-3" />
+                </Link>
               </Button>
-              <Button size="sm" variant="outline" className="rounded-full" asChild>
+              <Button size="sm" variant="outline" className="rounded-lg text-xs h-8" asChild>
                 <Link href="/tools/webcam">Try Live Tool</Link>
               </Button>
             </div>
           </div>
 
           {/* Learn */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-semibold">Get Started</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <Link href="/modules" className="hover:text-[color:var(--brand-1)] transition-colors">
-                  Learning Path
-                </Link>
-              </li>
-              <li>
-                <Link href="/challenge" className="hover:text-[color:var(--brand-1)] transition-colors">
-                  Practice Challenges
-                </Link>
-              </li>
-              <li>
-                <Link href="/about" className="hover:text-[color:var(--brand-1)] transition-colors">
-                  How It Works
-                </Link>
-              </li>
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground/70">Get Started</h4>
+            <ul className="space-y-2.5">
+              {footerLinks.learn.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Tools */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-semibold">Tools</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <Link href="/tools/text-to-sign" className="hover:text-[color:var(--brand-1)] transition-colors">
-                  Text → Sign
-                </Link>
-              </li>
-              <li>
-                <Link href="/tools/image-to-sign" className="hover:text-[color:var(--brand-1)] transition-colors">
-                  Image → Sign
-                </Link>
-              </li>
-              <li>
-                <Link href="/tools/webcam" className="hover:text-[color:var(--brand-1)] transition-colors">
-                  Webcam → Sign
-                </Link>
-              </li>
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground/70">Tools</h4>
+            <ul className="space-y-2.5">
+              {footerLinks.tools.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* About */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-semibold">About</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <Link href="/about" className="hover:text-[color:var(--brand-1)] transition-colors">
-                  About Signademy
-                </Link>
-              </li>
-              <li>
-                <Link href="/mission" className="hover:text-[color:var(--brand-1)] transition-colors">
-                  Mission & Vision
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:text-[color:var(--brand-1)] transition-colors">
-                  Contact Us
-                </Link>
-              </li>
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground/70">About</h4>
+            <ul className="space-y-2.5">
+              {footerLinks.about.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
-        <Separator className="my-8" />
+        <Separator className="my-10 opacity-50" />
 
-        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <p className="text-xs text-muted-foreground flex items-center gap-1">
-            © {new Date().getFullYear()} Signademy. Made with{" "}
-            <Heart className="size-3 text-red-500 fill-red-500 inline" />{" "}
-            for the deaf & hard-of-hearing community.
+        <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+          <p className="text-xs text-muted-foreground/70 flex items-center gap-1.5">
+            © {new Date().getFullYear()} Signademy · Made with{" "}
+            <Heart className="size-3 text-red-500 fill-red-500" />{" "}
+            for the deaf & hard-of-hearing community
           </p>
           <BackToTop />
         </div>

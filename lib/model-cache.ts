@@ -96,7 +96,6 @@ export async function downloadAndCacheModel(
   const chunks: Uint8Array[] = [];
   let loaded = 0;
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
@@ -148,6 +147,87 @@ export async function getModelBuffer(
   const cached = await getCachedModelBuffer(category);
   if (cached) return cached;
   return downloadAndCacheModel(category, onProgress);
+}
+
+/**
+ * Download and cache a model from a custom URL (not in MODEL_URLS).
+ * Uses the custom URL as the cache key.
+ */
+export async function downloadAndCacheCustomModel(
+  customUrl: string,
+  displayName: string,
+  onProgress?: (progress: DownloadProgress) => void,
+  signal?: AbortSignal
+): Promise<ArrayBuffer> {
+  const cache = await openCache();
+  
+  // Check if already cached
+  if (cache) {
+    const response = await cache.match(customUrl);
+    if (response) {
+      console.log(`✅ Custom model loaded from cache: ${displayName}`);
+      return response.arrayBuffer();
+    }
+  }
+
+  // Download with progress tracking
+  const response = await fetch(customUrl, { signal });
+  if (!response.ok) {
+    throw new Error(`Failed to download custom model ${displayName}: ${response.status}`);
+  }
+
+  const contentLength = Number(response.headers.get("content-length") || 0);
+  const reader = response.body?.getReader();
+
+  if (!reader) {
+    // Fallback: no streaming support
+    const buffer = await response.arrayBuffer();
+    await cacheBuffer(customUrl, buffer);
+    console.log(`✅ Custom model cached: ${displayName}`);
+    return buffer;
+  }
+
+  const chunks: Uint8Array[] = [];
+  let loaded = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    loaded += value.length;
+    onProgress?.({
+      model: displayName,
+      loaded,
+      total: contentLength,
+      percent: contentLength ? Math.round((loaded / contentLength) * 100) : 0,
+    });
+  }
+
+  // Combine chunks
+  const combined = new Uint8Array(loaded);
+  let offset = 0;
+  for (const chunk of chunks) {
+    combined.set(chunk, offset);
+    offset += chunk.length;
+  }
+
+  const buffer = combined.buffer;
+  await cacheBuffer(customUrl, buffer);
+  console.log(`✅ Custom model cached: ${displayName}`);
+  return buffer;
+}
+
+/**
+ * Get a custom model buffer from cache, or null if not cached.
+ */
+export async function getCachedCustomModelBuffer(
+  customUrl: string
+): Promise<ArrayBuffer | null> {
+  const cache = await openCache();
+  if (!cache) return null;
+  const response = await cache.match(customUrl);
+  if (!response) return null;
+  return response.arrayBuffer();
 }
 
 /**
