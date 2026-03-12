@@ -6,6 +6,8 @@ import { Footer } from "./components/footer";
 import { TFLiteErrorSuppressor } from "./components/tflite-error-suppressor";
 import { ModelCacheProvider } from "@/lib/model-cache-context";
 import { ThemeProvider } from "./components/theme-provider";
+import { SoundProvider } from "@/lib/sound-context";
+import { SoundToggle } from "./components/sound-toggle";
 import { Toaster } from "@/components/ui/sonner";
 
 const workSans = Work_Sans({
@@ -47,16 +49,19 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <TFLiteErrorSuppressor />
-          <ModelCacheProvider>
-            <div id="top" className="sr-only" />
-            <Navbar />
-            <main id="content" className="min-h-[calc(100vh-4rem)]">
-              {children}
-            </main>
-            <Footer />
-          </ModelCacheProvider>
-          <Toaster richColors position="bottom-right" />
+          <SoundProvider>
+            <TFLiteErrorSuppressor />
+            <ModelCacheProvider>
+              <div id="top" className="sr-only" />
+              <Navbar />
+              <main id="content" className="min-h-[calc(100vh-4rem)]">
+                {children}
+              </main>
+              <Footer />
+            </ModelCacheProvider>
+            <SoundToggle />
+            <Toaster richColors position="bottom-right" />
+          </SoundProvider>
         </ThemeProvider>
       </body>
     </html>

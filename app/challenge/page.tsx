@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { toast } from "sonner";
+import { useSound } from "@/lib/sound-context";
 import {
   Clock,
   Flame,
@@ -12,6 +13,7 @@ import {
   Heart,
   Eye,
   Camera,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +26,16 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -76,11 +88,20 @@ const TIMER_SECONDS = 10;
 const ENDLESS_LIVES = 3;
 
 export default function ChallengePage() {
+  // Sound system
+  const { playSound, startBgm, stopBgm } = useSound();
+  // Ref to bridge playSound into the predictWebcam rAF loop (stale closure fix)
+  const playSoundRef = React.useRef(playSound);
+  React.useEffect(() => {
+    playSoundRef.current = playSound;
+  }, [playSound]);
+
   // Page state
   const [pageState, setPageState] = React.useState<
     "menu" | "playing" | "results"
   >("menu");
   const [modelCategory, setModelCategory] = React.useState("alphabet");
+  const [showExitConfirm, setShowExitConfirm] = React.useState(false);
 
   // Game state
   const [game, setGame] = React.useState<GameState>({
@@ -185,18 +206,10 @@ export default function ChallengePage() {
   const generateQuestions = React.useCallback(
     (mode: ChallengeMode, category: string): QuestionItem[] => {
       if (mode === "endless") {
-        // Endless: shuffle 3 from each category - from legacy initializeEndlessQueue()
-        const queue: QuestionItem[] = [];
-        const categories = Object.keys(CHALLENGE_WORDS);
-        for (const cat of categories) {
-          const words = [...CHALLENGE_WORDS[cat]];
-          const shuffled = words.sort(() => Math.random() - 0.5);
-          const picked = shuffled.slice(0, 3);
-          for (const word of picked) {
-            queue.push({ word, category: cat });
-          }
-        }
-        return queue.sort(() => Math.random() - 0.5);
+        // Endless: use only the selected model's category (AI can only detect one at a time)
+        const words = [...(CHALLENGE_WORDS[category] || [])];
+        const shuffled = words.sort(() => Math.random() - 0.5);
+        return shuffled.map((w) => ({ word: w, category }));
       } else {
         // flash-sign and sign-match: 10 questions from selected category
         const words = [...(CHALLENGE_WORDS[category] || [])];
@@ -256,8 +269,10 @@ export default function ChallengePage() {
       });
       setPageState("playing");
       correctDetectedRef.current = false;
+      // Start background music
+      startBgm();
     },
-    [modelCategory, generateQuestions, generateSignMatchOptions]
+    [modelCategory, generateQuestions, generateSignMatchOptions, startBgm]
   );
 
   // Timer - from legacy startTimer() / 10 second countdown
@@ -275,7 +290,8 @@ export default function ChallengePage() {
         // Guard: if result is already shown, don't double-count
         if (prev.showResult) return prev;
         if (prev.timeLeft <= 1) {
-          // Time's up - wrong answer
+          // Time's up - wrong answer — play incorrect sound
+          playSound("incorrect");
           return {
             ...prev,
             timeLeft: 0,
@@ -293,7 +309,7 @@ export default function ChallengePage() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [pageState, game.isActive, game.showResult, game.mode]);
+  }, [pageState, game.isActive, game.showResult, game.mode, playSound]);
 
   // Webcam prediction loop - from legacy predictWebcam() adapted for challenge
   const predictWebcam = React.useCallback(() => {
@@ -365,6 +381,8 @@ export default function ChallengePage() {
             const expected = normalizeModelOutput(currentQ.word);
             if (normalized === expected && score >= 60) {
               correctDetectedRef.current = true;
+              // Play correct sound
+              playSoundRef.current("correct");
               return {
                 ...prev,
                 showResult: true,
@@ -393,63 +411,71 @@ export default function ChallengePage() {
     }
   }, []);
 
-  // Toggle camera
-  const toggleCamera = React.useCallback(async () => {
+  // Stop camera helper
+  const stopCamera = React.useCallback(() => {
+    webcamRunningRef.current = false;
+    setCameraActive(false);
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) videoRef.current.srcObject = null;
+    runningModeRef.current = "IMAGE";
+    lastVideoTimeRef.current = -1;
+    lastResultsRef.current = null;
+  }, []);
+
+  // Start camera helper
+  const startCamera = React.useCallback(async () => {
     if (!gestureRecognizerRef.current) {
       toast.warning("AI model not loaded yet.");
       return;
     }
-
-    if (cameraActive) {
-      webcamRunningRef.current = false;
-      setCameraActive(false);
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((t) => t.stop());
-        streamRef.current = null;
+    if (cameraActive) return; // Already running
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const recognizer = gestureRecognizerRef.current as any;
+      if (runningModeRef.current !== "VIDEO") {
+        runningModeRef.current = "VIDEO";
+        await recognizer.setOptions({ runningMode: "VIDEO" });
       }
-      if (videoRef.current) videoRef.current.srcObject = null;
-      // Reset mode for next activation
-      runningModeRef.current = "IMAGE";
-      lastVideoTimeRef.current = -1;
-      lastResultsRef.current = null;
-    } else {
-      try {
-        // Set running mode to VIDEO before starting prediction loop
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const recognizer = gestureRecognizerRef.current as any;
-        if (runningModeRef.current !== "VIDEO") {
-          runningModeRef.current = "VIDEO";
-          await recognizer.setOptions({ runningMode: "VIDEO" });
-        }
-
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 640, height: 480 },
-        });
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.addEventListener(
-            "loadeddata",
-            () => {
-              webcamRunningRef.current = true;
-              setCameraActive(true);
-              predictWebcam();
-            },
-            { once: true }
-          );
-        }
-      } catch (err) {
-        console.error("Camera error:", err);
-        toast.error("Could not access camera.");
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 640, height: 480 },
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.addEventListener(
+          "loadeddata",
+          () => {
+            webcamRunningRef.current = true;
+            setCameraActive(true);
+            predictWebcam();
+          },
+          { once: true }
+        );
       }
+    } catch (err) {
+      console.error("Camera error:", err);
+      toast.error("Could not access camera.");
     }
   }, [cameraActive, predictWebcam]);
+
+  // Toggle camera
+  const toggleCamera = React.useCallback(async () => {
+    if (cameraActive) {
+      stopCamera();
+    } else {
+      await startCamera();
+    }
+  }, [cameraActive, stopCamera, startCamera]);
 
   // Next question - from legacy nextQuestion()
   const nextQuestion = React.useCallback(() => {
     setGame((prev) => {
       // Check end conditions
       if (prev.mode === "endless" && prev.lives <= 0) {
+        stopBgm();
         setPageState("results");
         return prev;
       }
@@ -457,6 +483,7 @@ export default function ChallengePage() {
         prev.mode !== "endless" &&
         prev.currentIndex >= prev.questions.length - 1
       ) {
+        stopBgm();
         setPageState("results");
         return prev;
       }
@@ -466,16 +493,11 @@ export default function ChallengePage() {
         prev.mode === "endless" &&
         prev.currentIndex >= questions.length - 2
       ) {
-        // Add 3 more random questions per category
-        const cats = Object.keys(CHALLENGE_WORDS);
-        const extra: QuestionItem[] = [];
-        for (const cat of cats) {
-          const words = [...CHALLENGE_WORDS[cat]];
-          const shuffled = words.sort(() => Math.random() - 0.5);
-          extra.push(
-            ...shuffled.slice(0, 2).map((w) => ({ word: w, category: cat }))
-          );
-        }
+        // Endless: add more shuffled questions from the same category
+        const currentCat = prev.questions[0]?.category || "alphabet";
+        const words = [...(CHALLENGE_WORDS[currentCat] || [])];
+        const shuffled = words.sort(() => Math.random() - 0.5);
+        const extra = shuffled.slice(0, 6).map((w) => ({ word: w, category: currentCat }));
         questions = [...questions, ...extra.sort(() => Math.random() - 0.5)];
       }
 
@@ -496,6 +518,11 @@ export default function ChallengePage() {
 
       correctDetectedRef.current = false;
 
+      // Auto-stop camera between sign-match rounds
+      if (prev.mode === "sign-match") {
+        stopCamera();
+      }
+
       return {
         ...prev,
         questions,
@@ -511,7 +538,7 @@ export default function ChallengePage() {
         detectedConfidence: 0,
       };
     });
-  }, []);
+  }, [stopBgm, stopCamera]);
 
   // Skip question - from legacy skipQuestion()
   const skipQuestion = React.useCallback(() => {
@@ -541,13 +568,17 @@ export default function ChallengePage() {
       const isCorrect = selected === currentQ.word;
 
       if (isCorrect) {
-        // Move to "demonstrate" phase - user must sign it via webcam
+        // Correct selection — play select sound, move to "demonstrate" phase, auto-start camera
+        playSound("select");
         setGame((prev) => ({
           ...prev,
           signMatchSelected: selected,
           signMatchPhase: "demonstrate",
         }));
+        startCamera();
       } else {
+        // Wrong selection
+        playSound("incorrect");
         setGame((prev) => ({
           ...prev,
           signMatchSelected: selected,
@@ -557,7 +588,7 @@ export default function ChallengePage() {
         }));
       }
     },
-    [game.questions, game.currentIndex]
+    [game.questions, game.currentIndex, playSound, startCamera]
   );
 
   // Handle model change
@@ -572,6 +603,7 @@ export default function ChallengePage() {
 
   // Reset
   const resetGame = React.useCallback(() => {
+    stopBgm();
     setPageState("menu");
     webcamRunningRef.current = false;
     setCameraActive(false);
@@ -601,18 +633,19 @@ export default function ChallengePage() {
       detectedSign: null,
       detectedConfidence: 0,
     });
-  }, []);
+  }, [stopBgm]);
 
-  // Cleanup on unmount
+  // Cleanup on unmount - stop BGM and webcam
   React.useEffect(() => {
     return () => {
+      stopBgm();
       webcamRunningRef.current = false;
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((t) => t.stop());
       }
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, []);
+  }, [stopBgm]);
 
   const currentQ = game.questions[game.currentIndex];
   const isTimerWarning = game.timeLeft <= 5;
@@ -666,11 +699,11 @@ export default function ChallengePage() {
       emoji: "♾️",
       icon: Trophy,
       description:
-        "Mixed categories, 3 lives. Keep going until you run out!",
+        "3 lives, selected category. Keep going until you run out!",
       color: "from-yellow-500 to-amber-500",
       rules: [
         "3 lives total",
-        "Mixed categories",
+        "Uses selected AI model category",
         "Cannot skip",
         "Shuffled question queue",
       ],
@@ -774,7 +807,8 @@ export default function ChallengePage() {
       {pageState === "playing" && currentQ && (
         <div className="space-y-6">
           {/* Top stats bar */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="flex items-center gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
             <Card>
               <CardHeader className="pb-2">
                 <CardDescription>Score</CardDescription>
@@ -832,6 +866,17 @@ export default function ChallengePage() {
                 </CardContent>
               </Card>
             )}
+            </div>
+            {/* Exit button */}
+            <Button
+              variant="outline"
+              size="icon"
+              className="shrink-0 size-10 rounded-lg border-red-200 text-red-500 hover:bg-red-50 hover:text-red-600 dark:border-red-800 dark:hover:bg-red-900/20"
+              onClick={() => setShowExitConfirm(true)}
+              title="Exit game"
+            >
+              <LogOut className="size-5" />
+            </Button>
           </div>
 
           <div className="grid gap-6 md:grid-cols-[1fr_300px]">
@@ -899,6 +944,25 @@ export default function ChallengePage() {
                     </div>
                   )}
 
+                {/* Sign-match: demonstrate phase — show reference video so user can imitate */}
+                {game.mode === "sign-match" &&
+                  game.signMatchPhase === "demonstrate" &&
+                  !game.showResult && (
+                    <div className="rounded-lg border-2 border-green-500/50 overflow-hidden bg-black">
+                      <video
+                        src={getVideoPath(currentQ.word, currentQ.category)}
+                        className="w-full aspect-video object-contain"
+                        autoPlay
+                        loop
+                        playsInline
+                        muted
+                      />
+                      <p className="text-center text-sm text-muted-foreground py-2 bg-green-50 dark:bg-green-900/20">
+                        ✅ Correct! Now imitate the sign for &quot;{currentQ.word}&quot; via webcam
+                      </p>
+                    </div>
+                  )}
+
                 {/* Reveal video - from legacy revealSign() */}
                 {game.showReveal && (
                   <div className="rounded-lg border overflow-hidden">
@@ -944,8 +1008,8 @@ export default function ChallengePage() {
                     game.signMatchPhase === "select"
                   ) && (
                     <div className="flex gap-2 flex-wrap justify-center">
-                      {/* Reveal button - once per game */}
-                      {!game.revealUsed && !game.showReveal && (
+                      {/* Reveal button - once per game, not in sign-match */}
+                      {game.mode !== "sign-match" && !game.revealUsed && !game.showReveal && (
                         <Button
                           variant="outline"
                           onClick={revealAnswer}
@@ -1054,6 +1118,30 @@ export default function ChallengePage() {
               </Card>
             </div>
           </div>
+
+          {/* Exit confirmation dialog */}
+          <AlertDialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Exit Game?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to quit? Your current progress will be lost.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Keep Playing</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    setShowExitConfirm(false);
+                    resetGame();
+                  }}
+                  className="bg-red-500 hover:bg-red-600 text-white"
+                >
+                  Exit Game
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       )}
 
